@@ -1,4 +1,0 @@
-n 	mqtt	invid   	unit_guid                           	msg_id                   	text               	context	class  	level	area 	addr                                 	block	type	bit	invert_bit	rea
-1	    	G-044322	01749246-95f6-57db-b7c3-2ae0e8be671f	cold7_Defrost_status     	razmorozka	       	waiting	100  	LOCAL	cold7_status.Defrost_status				
-2	    	G-044322	01749246-95f6-57db-b7c3-2ae0e8be671f	cold7_VentSK_status      	Вентилятор         	       	working	100  	LOCAL	cold7_status.VentSK_status				
-3	    	G-044322	01749246-95f6-57db-b7c3-2ae0e8be671f	cold7_ComprSK_status     	Компрессор         	       	working	100  	LOCAL	cold7_status.ComprSK_status				

@@ -216,9 +216,9 @@ func finder() *list.List {
 	return queue
 }
 
-func (r *APIQueryRow1) returns(db *sql.DB, tablename string, Unit_guid string) {
+func (r *APIQueryRow1) returns(db *sql.DB, tablename string, Unit_guid string, page int) {
 	data := []APIQueryRow1{}
-	query := fmt.Sprintf("SELECT invid, msg_id, text FROM public.%s WHERE unit_guid = '%s'", tablename, Unit_guid)
+	query := fmt.Sprintf("SELECT invid, msg_id, text FROM public.%s WHERE unit_guid = '%s' limit %d offset %d", tablename, Unit_guid, perPage, (page-1)*perPage)
 	rows, err := db.Query(query)
 
 	if err != nil {
@@ -242,30 +242,30 @@ func (r *APIQueryRow1) returns(db *sql.DB, tablename string, Unit_guid string) {
 	var return_data string
 
 	for _, row := range data {
-		return_data = fmt.Sprintf("%s\n%s", return_data, row)
+		return_data = fmt.Sprintf("%s\n'invid' : '%s',\n'msg_id' : '%s',\n'text' : '%s'\n", return_data, row.Invid, row.Msg_id, row.Text)
 	}
 
 	fmt.Println(return_data)
 }
 
-func (r *APIQueryRow2) returns(db *sql.DB, tablename string, Unit_guid string) {
+func (r *APIQueryRow2) returns(db *sql.DB, tablename string, Unit_guid string, page int) {
 	data := []APIQueryRow2{}
-	query := fmt.Sprintf("SELECT invid, msg_id, text, class, level, area, addr FROM public.%s WHERE unit_guid = '%s'", tablename, Unit_guid)
+	query := fmt.Sprintf("SELECT invid, msg_id, text, class, level, area, addr FROM public.%s WHERE unit_guid = '%s' limit %d offset %d", tablename, Unit_guid, perPage, (page-1)*perPage)
 	rows, err := db.Query(query)
-	
+
 	if err != nil {
 		log.Println(err)
 	}
 
 	defer rows.Close()
 
-	var invid     string 
-	var msg_id    string
-	var text      string
-	var class     string
-	var level     string
-	var area      string
-	var addr      string
+	var invid string
+	var msg_id string
+	var text string
+	var class string
+	var level string
+	var area string
+	var addr string
 
 	for rows.Next() {
 		err := rows.Scan(&invid, &msg_id, &text, &class, &level, &area, &addr)
@@ -278,17 +278,18 @@ func (r *APIQueryRow2) returns(db *sql.DB, tablename string, Unit_guid string) {
 	var return_data string
 
 	for _, row := range data {
-		return_data = fmt.Sprintf("%s\n%s", return_data, row)
+		return_data = fmt.Sprintf("%s\n'invid' : '%s',\n'msg_id' : '%s',\n'text' : '%s'\n'class' : '%s'\n'level' : '%s'\n'area' : '%s'\n'addr' : '%s'\n",
+			return_data, row.Invid, row.Msg_id, row.Text, row.Class, row.Level, row.Area, row.Addr)
 	}
 
 	fmt.Println(return_data)
 }
 
-func (r *APIQueryRow3) returns(db *sql.DB, tablename string, Unit_guid string) {
+func (r *APIQueryRow3) returns(db *sql.DB, tablename string, Unit_guid string, page int) {
 	data := []APIQueryRow3{}
-	query := fmt.Sprintf("SELECT text FROM public.%s WHERE unit_guid = '%s'", tablename, Unit_guid)
+	query := fmt.Sprintf("SELECT text FROM public.%s WHERE unit_guid = '%s' limit %d offset %d", tablename, Unit_guid, perPage, (page-1)*perPage)
 	rows, err := db.Query(query)
-	
+
 	if err != nil {
 		log.Println(err)
 	}
@@ -308,7 +309,7 @@ func (r *APIQueryRow3) returns(db *sql.DB, tablename string, Unit_guid string) {
 	var return_data string
 
 	for _, row := range data {
-		return_data = fmt.Sprintf("%s\n%s", return_data, row)
+		return_data = fmt.Sprintf("%s\n'text' : '%s'\n", return_data, row.Text)
 	}
 
 	fmt.Println(return_data)
@@ -317,4 +318,58 @@ func (r *APIQueryRow3) returns(db *sql.DB, tablename string, Unit_guid string) {
 func (r *QueryRow) PrintData() string {
 	return fmt.Sprintf("mqtt = %s;\ninvid = %s;\nmsg_id = %s;\ntext = %s;\ncontext = %s;\nclass = %s;\nlevel = %s;\narea = %s;\naddr = %s;\nblock = %s;\ntype = %s;\nbit = %s;\ninvert_bit = %s;\n\n",
 		r.Mqtt, r.Invid, r.Msg_id, r.Text, r.Context, r.Class, r.Level, r.Area, r.Addr, r.Block, r.Type, r.Bit, r.Invert_bit)
+}
+
+func APIQuery(mode int, page int, unit_guid string) {
+	switch mode {
+	case 1:
+		var k API = &APIQueryRow1{}
+		k.returns(db, tablename, unit_guid, page)
+	case 2:
+		var k API = &APIQueryRow2{}
+		k.returns(db, tablename, unit_guid, page)
+	case 3:
+		var k API = &APIQueryRow3{}
+		k.returns(db, tablename, unit_guid, page)
+	}
+
+}
+
+func Merger(db *sql.DB, tablename string) {
+	query := fmt.Sprintf(`DROP TABLE IF EXISTS public.%s_switch;
+	CREATE TABLE IF NOT EXISTS public.%s_switch 
+	(
+		mqtt text,
+		invid text,
+		unit_guid text,        
+		msg_id text,
+		text text,               
+		context text,
+		class text,
+		level text,
+		area text,
+		addr text,  
+		block text,
+		type text,
+		bit text,
+		invert_bit text
+	)
+	TABLESPACE pg_default;
+
+	INSERT INTO %s_switch(mqtt,invid,unit_guid,msg_id,text,context,class,level,area,addr,block,type,bit,invert_bit)
+	(
+		SELECT * FROM %s GROUP BY 
+	  	mqtt,invid,unit_guid,msg_id,text,context,class,level,area,addr,block,type,bit,invert_bit);
+
+	truncate %s;
+
+	INSERT INTO %s(mqtt,invid,unit_guid,msg_id,text,context,class,level,area,addr,block,type,bit,invert_bit)(select * from %s_switch);
+
+	DROP TABLE IF EXISTS public.%s_switch;`, tablename, tablename, tablename, tablename, tablename, tablename, tablename, tablename)
+
+	_, err := db.Exec(query)
+
+	if err != nil {
+		log.Panic(err)
+	}
 }

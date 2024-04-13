@@ -12,7 +12,7 @@ import (
 )
 
 type API interface {
-	returns(*sql.DB, string, string)
+	returns(*sql.DB, string, string, int)
 }
 
 type QueryRow struct {
@@ -103,8 +103,8 @@ func main() {
 				log.Println(err)
 			}
 		}
-		// var k API = &APIQueryRow1{}
-		// k.returns(db, tablename, "01749246-95f6-57db-b7c3-2ae0e8be671f")
+
+		// APIQuery(2,1,"01749246-95f6-57db-b7c3-2ae0e8be671f")
 		time.Sleep(time.Second * delay)
 	}
 

@@ -14,6 +14,7 @@ const (
 	DirectoryOutFile          = "C:/CumPiuter/BiocadTest/DirectoryOutFile/"
 	DirectoryOfProcessedFiles = "C:/CumPiuter/BiocadTest/DirectoryOfProcessedFiles/"
 	DirectoryOfQueuedFiles    = "C:/CumPiuter/BiocadTest/DirectoryOfQueuedFiles/"
-	DyrectoryErrorFiles        = "C:/CumPiuter/BiocadTest/DyrectoryErrorFiles/"
+	DyrectoryErrorFiles       = "C:/CumPiuter/BiocadTest/DyrectoryErrorFiles/"
 	delay                     = 10
+	perPage                   = 5
 )
