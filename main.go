@@ -40,16 +40,16 @@ type APIQueryRow1 struct {
 }
 
 type APIQueryRow2 struct {
-	Invid     string `csv:"invid"`
-	Msg_id    string `csv:"msg_id"`
-	Text      string `csv:"text"`
-	Class     string `csv:"class"`
-	Level     string `csv:"level"`
-	Area      string `csv:"area"`
-	Addr      string `csv:"addr"`
+	Invid  string `csv:"invid"`
+	Msg_id string `csv:"msg_id"`
+	Text   string `csv:"text"`
+	Class  string `csv:"class"`
+	Level  string `csv:"level"`
+	Area   string `csv:"area"`
+	Addr   string `csv:"addr"`
 }
 type APIQueryRow3 struct {
-	Text      string `csv:"text"`
+	Text string `csv:"text"`
 }
 
 var db *sql.DB
@@ -81,6 +81,11 @@ func init() {
 	}
 
 	current_queue = list.New()
+	os.Mkdir("C:/CumPiuter/BiocadTest/DirectoryInputFile", os.FileMode(0522))
+	os.Mkdir("C:/CumPiuter/BiocadTest/DirectoryOutFile", os.FileMode(0522))
+	os.Mkdir("C:/CumPiuter/BiocadTest/DirectoryOfProcessedFiles", os.FileMode(0522))
+	os.Mkdir("C:/CumPiuter/BiocadTest/DirectoryOfQueuedFiles", os.FileMode(0522))
+	os.Mkdir("C:/CumPiuter/BiocadTest/DyrectoryErrorFiles", os.FileMode(0522))
 
 }
 
